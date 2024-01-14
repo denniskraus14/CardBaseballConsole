@@ -1,5 +1,6 @@
 #Card Baseball Console-Based Impl
 import random as r
+import names as n
 
 class Player:
     def __init__(self, AVG, Singles, Doubles, Triples, HRs, Steals, Name=""):
@@ -21,14 +22,14 @@ class Player:
 
 def createPlayer():
     #todo pick a random name for the player
-    l = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t']
+    #l = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t']
     return Player(float(r.randrange(175,326)/1000),
            r.randrange(0,161),
            r.randrange(0,60),
            r.randrange(0,11),
            r.randrange(0,54),
            r.randrange(0,72),
-           r.choice(l))
+           r.choice(n.names))
 
 #init dice outcomes
 def init_grid():
