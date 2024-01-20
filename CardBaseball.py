@@ -138,10 +138,10 @@ def draw_outDeck(batter,teamName, outs):
         n_outs = 1
     elif card == "Double Play":
         if outs == 0:
-            double_play(teamName)
+            n_outs = double_play(batter, teamName)
         else:
             print("Double Play")  #No reason to call else. bases will clear at end of inning
-        n_outs = 2
+
     elif "Double Play Maybe" in card:
         steals = int(card.split(".")[1])
         n_outs = double_play_maybe(batter,teamName, steals)
@@ -228,7 +228,7 @@ def double_play_maybe(batter, teamName, steals):
     if not (runner1 is None):
         game_details[teamName]['1B'] = None #runner on 1st forced out at 2B
         n_outs = 1
-        if batter.steals  >=  steals:
+        if batter.steals >= steals:
             print("Force out at 2nd. Safe at first!")
             game_details[teamName]['1B'] = batter # safe
         else:
@@ -239,15 +239,60 @@ def double_play_maybe(batter, teamName, steals):
         n_outs = 1
     return n_outs    
 
-def double_play(teamName):
+def double_play(batter, teamName):
     global game_details
+    runner1 = game_details[teamName]['1B']
+    runner2 = game_details[teamName]['2B']
     runner3 = game_details[teamName]['3B']
-    if not (runner3 is None):
-        print(runner3.name,'scores on a double play!')
-        print('The score is', game_details['Home']['runs'],'-',game_details['Away']['runs'])
-        game_details[teamName]['runs'] = game_details[teamName]['runs'] + 1 
-        clear_bases()
-    print('Double Play')
+    runners = [runner1, runner2, runner3, batter]
+    n_outs = 0 #init
+    runners2 = []
+    for runner in runners:
+        if runner is None:
+            pass
+        else:
+            runners2.append(runner)
+    #choose a random 2 runners in this scenario
+    if len(runners2) >= 2:
+        print('Double Play!')
+        n_outs = 2 #double play ensured
+        out1 = r.choice(runners2)
+        runners2.remove(out1)
+        out2 = r.choice(runners2)
+        if runner3 != out1 and runner3 != out2 and not (runner3 is None):
+            print(runner3.name, 'scores on a double play!')
+            print('The score is', game_details['Home']['runs'],'-',game_details['Away']['runs'])
+            game_details[teamName]['runs'] = game_details[teamName]['runs'] + 1
+            game_details[teamName]['3B'] = None
+        else:
+            if runner3 == out1 or runner3 == out2:
+                print(runner3.name, 'is out heading to home!')
+                game_details[teamName]['3B'] = None
+        if runner2 != out1 and runner2 != out2 and not (runner2 is None):
+            print(runner2.name, "advances to 3B on a double play!")
+            game_details[teamName]['3B'] = runner2
+            game_details[teamName]['2B'] = None
+        else:
+            if runner2 == out1 or runner2 == out2:
+                print(runner2.name, 'is out heading to 3B!')
+                game_details[teamName]['2B'] = None
+        if runner1 != out1 and runner1 != out2 and not (runner1 is None):
+            game_details[teamName]['2B'] = runner1
+            game_details[teamName]['1B'] = None
+            print(runner1.name, "advances to 2B on a double play!")
+        else:
+            if runner1 == out1 or runner1 == out2:
+                print(runner1.name, 'is out heading to 2B!')
+                game_details[teamName]['1B'] = None
+        if batter != out1 and batter != out2 and not (batter is None):
+            print(batter.name, 'is out at 1B!')
+            game_details[teamName]['1B'] = batter
+        else:
+            pass
+    else:
+        print("Out at first")
+        n_outs = 1 #only the batter is out
+    return n_outs
 
     
 def all_runners_advance(teamName):
