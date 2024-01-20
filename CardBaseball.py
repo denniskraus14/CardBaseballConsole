@@ -140,7 +140,7 @@ def draw_outDeck(batter,teamName, outs):
         if outs == 0:
             double_play(teamName)
         else:
-            print("Double Play")  #no reason to call else. bases will clear at end of inning
+            print("Double Play")  #No reason to call else. bases will clear at end of inning
         n_outs = 2
     elif "Double Play Maybe" in card:
         steals = int(card.split(".")[1])
@@ -179,8 +179,9 @@ def draw_outDeck(batter,teamName, outs):
                     print("Out. Runners advance")
                     all_runners_advance(teamName)
                 else:
-                    print("Out")
+                    print("Out") #todo do you draw an out card?
             elif play == 'Safe on Error':
+                print("Out") #todo do you draw an out card?
                 pass #runners hold, 1 out
             else:
                 print(play)
@@ -349,15 +350,15 @@ def single(batter, teamName):
     runner3 = game_details[teamName]['3B']
     runs = 0
     if not(runner3 is None):
-        runs +=1
+        runs += 1
     if not (runner2 is None):
         game_details[teamName]['3B'] = runner2
         game_details[teamName]['2B'] = None
     if not (runner1  is None):
         game_details[teamName]['2B'] = runner1
     game_details[teamName]['1B'] = batter
-    print(batter.name,'hits a single!')
-    if runs>0:
+    print(batter.name, 'hits a single!')
+    if runs > 0:
         game_details[teamName]['runs'] = game_details[teamName]['runs'] + runs
         print('The score is', game_details['Home']['runs'], '-', game_details['Away']['runs'])
     
@@ -369,16 +370,17 @@ def double(batter, teamName):
     runner3 = game_details[teamName]['3B']
     runs = 0
     if not (runner3 is None):
-        runs+=1
+        runs += 1
         game_details[teamName]['3B'] = None
-    if not (runner2  is None):
-        runs+=1
+    if not (runner2 is None):
+        runs += 1
     if not (runner1 is None):
         game_details[teamName]['3B'] = game_details[teamName]['1B']
         game_details[teamName]['1B']  = None
     game_details[teamName]['2B'] = batter
-    print(batter.name,'hits a double!')
-    if runs>0:
+    print(batter.name, 'hits a double!')
+    if runs > 0:
+        game_details[teamName]['runs'] = game_details[teamName]['runs'] + runs
         print('The score is', game_details['Home']['runs'], '-', game_details['Away']['runs'])
 
 def triple(batter, teamName):
@@ -392,6 +394,7 @@ def triple(batter, teamName):
     clear_bases(teamName)
     print(batter.name, 'hits a triple!')
     if runs > 0:
+        game_details[teamName]['runs'] = game_details[teamName]['runs'] + runs
         print('The score is', game_details['Home']['runs'], '-' ,game_details['Away']['runs'])
 
 def homeRun(batter, teamName):
@@ -568,3 +571,4 @@ if home_runs > away_runs:
 else:
     print('Away Team Wins ' + str(game_details["Home"]['runs']) + "-" +
           str(game_details["Away"]['runs']) + "!")
+
