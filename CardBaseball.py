@@ -294,7 +294,6 @@ def double_play(batter, teamName):
         n_outs = 1 #only the batter is out
     return n_outs
 
-    
 def all_runners_advance(teamName):
     runner3 = game_details[teamName]['3B']
     runner2 = game_details[teamName]['2B']
