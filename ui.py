@@ -6,6 +6,7 @@ root = Tk()
 #Card Baseball GUI Impl
 import random as r
 import names as n
+from functools import partial
 
 class Player:
     def __init__(self, AVG, Singles, Doubles, Triples, HRs, Steals, Name=""):
@@ -40,40 +41,6 @@ canv = Canvas(root, width=1300, height=1500, bg='grey')
 canv.grid(row=2, column=3)
 img = PhotoImage(file="C://Users//denni//Pictures//field.png")
 canv.create_image(20, 20, anchor=NW, image=img)
-
-
-# Create the Roll button
-def button_clicked():
-    # Call script here
-    # Update the UI
-    print("Button clicked!")
-
-
-# Creating a button with specified options
-button = Button(root,
-                text="Roll",
-                command=button_clicked,
-                activebackground="blue",
-                activeforeground="white",
-                anchor="center",
-                bd=3,
-                bg="lightgray",
-                cursor="hand2",
-                disabledforeground="gray",
-                fg="black",
-                font=("Arial", 12),
-                height=2,
-                highlightbackground="black",
-                highlightcolor="green",
-                highlightthickness=2,
-                justify="center",
-                overrelief="raised",
-                padx=10,
-                pady=5,
-                width=15,
-                wraplength=100)
-
-button.grid(row=2, column=3)
 
 #Card Baseball Console-Based Impl
 import random as r
@@ -438,19 +405,30 @@ def lead_runner_advance_option(teamName):
 
 
 #this function takes in the dice rolls & returns how many outs happened as a result of the AB
-def at_bat(batter, column, row, teamName, outs_this_inning):
+def at_bat(batter, teamName, outs_this_inning):
     global game_details
-    n_outs = 0
+    global outs
+    walkoff = False
+    dye1 = r.randrange(1,7)
+    dye2 = r.randrange(1,7)
+    dye3 = r.randrange(1,7)
+    row = dye1 + dye2
+    column = dye3
     result = grid[column - 1][row - 2]
+    batter_i = game_details[teamName]["batter"]
+    batter = game_details[teamName]['lineup'][batter_i]
     if result == "Hit":
-        n_outs = draw_hitDeck(batter, teamName, outs_this_inning)
+        outs += draw_hitDeck(batter, teamName, outs_this_inning)
+        print("In play!")
     elif result == "Out":
-        n_outs = draw_outDeck(batter, teamName, outs_this_inning)
+        outs += draw_outDeck(batter, teamName, outs_this_inning)
+        print("In play!")
     elif result == "Walk":
         walk(batter, teamName)
+        print("Walk!")
     elif result == "Strike Out":
         print(batter.name, 'strikes out!')
-        n_outs = 1
+        outs += 1
     elif result == "Double Plus":
         doublePlus(batter, teamName)
     elif result == "Triple Plus":
@@ -459,7 +437,15 @@ def at_bat(batter, column, row, teamName, outs_this_inning):
         homeRunPlus(batter,teamName)
     else:
         print("This should not happen!")
-    return n_outs
+    if game_details[teamName]['batter'] == 8:
+        game_details[teamName]['batter'] = 0
+    else:
+        game_details[teamName]['batter'] = game_details[teamName]['batter'] + 1
+    if game_details['Home']['runs']>game_details['Away']['runs'] and inning >= 9.5 and teamName == 'Home':
+        walkoff = True #home team walkoff condition
+    if not walkoff:
+        clear_bases(teamName)
+        game_details[teamName]['outs'] = game_details[teamName]['outs'] + 3
 
 #todo activate/inactivate sprites at set location based on whether value is None or not
 #todo find coordinates
@@ -615,6 +601,28 @@ def draw_plus():
     plus_cards.remove(card)
     return card
 
+def update_display():
+    global game_details
+    update_first_base()
+    update_second_base()
+    update_third_base()
+    update_batter()
+
+#todo first display the names of the batters on the bases
+#todo - enhancement - create animations of the batters moving/running around the bases
+def update_first_base():
+    pass
+
+def update_second_base():
+    pass
+
+def update_third_base():
+    pass
+
+def update_batter():
+    pass
+
+"""
 def half_inning(teamName):
     global team_details
     outs_this_inning = 0
@@ -639,6 +647,7 @@ def half_inning(teamName):
     if not walkoff:
         clear_bases(teamName)
         game_details[teamName]['outs'] = game_details[teamName]['outs'] + 3
+"""
 
 global grid
 grid = [[], [], [], [], [], [], [], [], [], [], []]
@@ -653,6 +662,66 @@ while i < 12:
     i += 1
 print("Home team:", home)
 print("Away team:", away)
+
+#todo what are the events?
+#at bat - after each one you need to check for end of half inning & end of game
+#todo pinch hit
+#todo pinch run
+
+#todo init batter/runner sprites at set coordinates & figure out how to toggle them on/off
+
+
+global currentBatter
+global teamName
+global outs
+#todo don't hardcode these
+currentBatter = Player(.0,0,0,0,0,0)
+teamName = 'Away'
+outs = 0
+
+# Creating a button with specified options
+atBat = Button(root,
+               text="Roll",
+               command=partial(at_bat, currentBatter, teamName, outs),
+               activebackground="blue",
+               activeforeground="white",
+               anchor="center",
+               bd=3,
+               bg="lightgray",
+               cursor="hand2",
+               disabledforeground="gray",
+               fg="black",
+               font=("Arial", 12),
+               height=2,
+               highlightbackground="black",
+               highlightcolor="green",
+               highlightthickness=2,
+               justify="center",
+               overrelief="raised",
+               padx=10,
+               pady=5,
+               width=15,
+               wraplength=100)
+
+atBat.grid(row=2, column=3)
+
+#init the game details
+global game_details
+game_details = dict()
+game_details["Home"] = dict()
+game_details["Away"] = dict()
+game_details["Home"]["runs"] = 0
+game_details["Away"]["runs"] = 0
+game_details["Home"]["outs"] = 0
+game_details["Away"]["outs"] = 0
+game_details["Home"]["batter"] = 0
+game_details["Away"]["batter"] = 0
+game_details["Home"]["lineup"] = home[:9]
+game_details["Away"]["lineup"] = away[:9]
+game_details["Home"]["bench"] = home[9:]
+game_details["Away"]["bench"] = away[9:]
+clear_bases('Home')
+clear_bases('Away')
 
 # Todo make a function that shows who is on base & call it at start of every inning & after every button click
 mainloop()
